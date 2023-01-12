@@ -1,0 +1,21 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+
+int main(int argc,char **argv){
+	int fd;
+	if(argc < 2){
+		fprintf(stderr,"usage...\n");
+		exit(1);
+	}
+	fd = open(argv[1],O_WRONLY|O_CREAT|O_TRUNC,0600);
+	if(lseek(fd,5LL*1024LL*1024LL*1024LL-1LL,SEEK_SET)<0){
+		perror("lseek()");
+		exit(1);
+	}
+	write(fd,"",1);
+	close(fd);
+}
