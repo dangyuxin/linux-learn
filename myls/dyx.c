@@ -29,7 +29,7 @@
 */
 void print_file_info(const char *file_name,const char *path);
 bool* lstype(int argc,char **argv,bool *type);
-void ls_do(const char *path,bool *make);
+void ls_main(const char *path,bool *make);
 void print(const char *path,struct stat sor);
 int main(int argc, char **argv){
     int sig=1;
@@ -38,12 +38,12 @@ int main(int argc, char **argv){
     type = lstype(argc,argv,type);
     for(int i=1;i<argc;i++){
         if(argv[i][0]!='-'){
-            ls_do(argv[i],type);
+            ls_main(argv[i],type);
             sig=0;
         }
     }
     if(sig){
-        ls_do(".",type);
+        ls_main(".",type);
     }
     if(!type[_l]){
         printf("\n");
@@ -83,13 +83,17 @@ bool* lstype(int argc,char **argv,bool *type){
     }
     return type;
 }
-void ls_do(const char *path,bool *make){
+void ls_main(const char *path,bool *make){
     DIR *dir;
     struct dirent *ent;
     struct stat res;
     int filecount = 0;
-    char **files=(char**)malloc(sizeof(char**)*1000000);
+    char **files=(char**)malloc(sizeof(char**)*100000);
     dir = opendir(path);
+    if(!dir){
+        free(files);
+        return ;
+    }
     while((ent=readdir(dir))!=NULL){
         if(!make[_a]&&ent->d_name[0]=='.'){
             continue;
@@ -137,10 +141,12 @@ void ls_do(const char *path,bool *make){
         if(!strcmp(path,"/"))sprintf(absl,"/%s",files[i]);
         else sprintf(absl,"%s/%s",path,files[i]);
         if((lstat(absl,&res)==-1)){
+            continue;
             perror("lstat");
             exit(1);
         }
         size+=res.st_blocks/2;
+        free(absl);
         }
         printf("总用量 %ld\n",size);
     }
@@ -149,6 +155,7 @@ void ls_do(const char *path,bool *make){
         if(!strcmp(path,"/"))sprintf(absl,"/%s",files[i]);
         else sprintf(absl,"%s/%s",path,files[i]);
         if((lstat(absl,&res)==-1)){
+            continue;
             perror("lstat");
             exit(1);
         }
@@ -172,12 +179,13 @@ void ls_do(const char *path,bool *make){
         if(!strcmp(path,"/"))sprintf(absl,"/%s",files[i]);
         else sprintf(absl,"%s/%s",path,files[i]);
         if((lstat(absl,&res)==-1)){
+            continue;
             perror("lstat");
             exit(1);
         }
         if(make[_R]&&!(S_ISLNK(res.st_mode))&&S_ISDIR(res.st_mode)&&(strcmp(files[i],".")&&strcmp(files[i],".."))){
             putchar('\n');
-            ls_do(absl,make);
+            ls_main(absl,make);
         }
         free(absl);
     }
@@ -192,6 +200,7 @@ void print_file_info(const char *file_name ,const char *path){
     char date[20];
 
     if (lstat(file_name, &file_stat) == -1) {
+        return ;
         perror("lstat");
         return;
     }
@@ -228,7 +237,7 @@ void print(const char *path,struct stat sor){
     } else if ((sor.st_mode & S_IXUSR) || (sor.st_mode & S_IXGRP) || (sor.st_mode & S_IXOTH)) {
         printf("\033[1;32m");  //设置可执行文件为绿色
     } 
-     if(S_ISLNK(sor.st_mode)){
+    if(S_ISLNK(sor.st_mode)){
         printf("\033[1;36m"); //链接文件颜色显示
     }  
     printf("%s\033[0m", path); //将颜色设置恢复为默认
