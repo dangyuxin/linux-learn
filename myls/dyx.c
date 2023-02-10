@@ -18,6 +18,8 @@
 #define _r 5
 #define _R 6
 
+int dircount=0;
+
 /*
 -a	列出目录下的所有文件，包括以.开头的隐含文件
 -l	列出文件的详细信息（包括文件属性和权限等）
@@ -39,14 +41,20 @@ int main(int argc, char **argv){
     for(int i=1;i<argc;i++){
         if(argv[i][0]!='-'){
             ls_main(argv[i],type);
+            if(dircount>0){
+                putchar('\n');
+            }
+            if(!type[_l]){
+                printf("\n");
+            }
             sig=0;
         }
     }
     if(sig){
         ls_main(".",type);
-    }
-    if(!type[_l]){
-        printf("\n");
+        if(!type[_l]){
+            printf("\n");
+        }
     }
     free(type);
     return 0;
@@ -55,6 +63,7 @@ bool* lstype(int argc,char **argv,bool *type){
     //bool type[7]={false};
     for(int i=1;i<argc;i++){
         if(argv[i][0]!='-'){
+            dircount++;
             continue;
         }
         for(int j=1;j<strlen(argv[i]);j++){
@@ -131,8 +140,9 @@ void ls_main(const char *path,bool *make){
             }
         }    
     }
-    if(make[_R]){
+    if(make[_R]||dircount>0){
         printf("%s:\n",path);
+        dircount--;
     }
     if(make[_s]||make[_l]){
         size_t size = 0;
@@ -185,6 +195,10 @@ void ls_main(const char *path,bool *make){
         }
         if(make[_R]&&!(S_ISLNK(res.st_mode))&&S_ISDIR(res.st_mode)&&(strcmp(files[i],".")&&strcmp(files[i],".."))){
             putchar('\n');
+            dircount++;
+            if(!make[_l]){
+                putchar('\n');
+            }
             ls_main(absl,make);
         }
         free(absl);
