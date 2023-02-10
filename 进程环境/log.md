@@ -3,7 +3,7 @@
 
 #### 1.main函数
 
-int main(int argc,char **argv);
+    int main(int argc,char **argv);
 
 
 #### 2.进程的终止
@@ -18,7 +18,7 @@ int main(int argc,char **argv);
 ##### 异常终止
 - 调用abort
 - 接到一个信号并终止
-- 最后一个线程对其取消请求做出响应
+* 最后一个线程对其取消请求做出响应
 
 
 
