@@ -2,8 +2,10 @@
 
 
 #### 1.main函数
+
     int main(int argc,char **argv);
 #### 2.进程的终止
+
     > 正常终止
     - 从main函数返回
     - 调用exit
