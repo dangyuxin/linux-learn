@@ -33,18 +33,33 @@
     putenv();
 
 #### 5.C程序的存储空间布局
+    pmap(1);
 
 
 #### 6.库
+* 动态库
+* 静态库
+* 手工装载库
+  SYNOPSIS
+       #include <dlfcn.h>
+
+       void *dlopen(const char *filename, int flags);
+
+       int dlclose(void *handle);
+
+       #define _GNU_SOURCE
+       #include <dlfcn.h>
+
+       void *dlmopen(Lmid_t lmid, const char *filename, int flags);
+
+       Link with -ldl.
+
+
+
 
 #### 7.函数跳转
 
 #### 8.资源的获取及其控制
-
-test :
-|年|月|日|
-|---|---|---|
-|2023|02|14|
 
 
 
