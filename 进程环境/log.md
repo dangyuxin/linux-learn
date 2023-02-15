@@ -62,11 +62,12 @@
   Link with -ldl.
 ```
 
-
-
-
-
 #### 7.函数跳转
+    goto;
+
+    setjmp();
+
+    longjup();
 
 #### 8.资源的获取及其控制
 
