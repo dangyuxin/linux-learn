@@ -40,7 +40,9 @@
 * 动态库
 * 静态库
 * 手工装载库
-  SYNOPSIS
+
+
+    ##### SYNOPSIS
        #include <dlfcn.h>
 
        void *dlopen(const char *filename, int flags);
