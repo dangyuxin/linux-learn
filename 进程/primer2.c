@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/types.h>
+#include <sys/wait.h>
 
 #define LEFT 30000000
 #define RIGHT 30000200
@@ -28,6 +29,8 @@ int main(){
             exit(0);//一定要写，否则子进程会继续进入循环创建进程
         }
     }
-    //getchar();
+    for(int i=LEFT;i<=RIGHT;i++){
+        wait(NULL);
+    }
     exit(0);
 }
