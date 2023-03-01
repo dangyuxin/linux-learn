@@ -11,6 +11,7 @@
 static void prompt(){
     printf("dyx-super shell$ ");
 }
+
 static void parse(const char *buf,glob_t *res){
     char *tok;
     int i=0;
@@ -24,7 +25,6 @@ static void parse(const char *buf,glob_t *res){
     }
     glob(tok,GLOB_NOCHECK|GLOB_APPEND*i,NULL,res);
     i=1;
-
     }
 }
 int main(){
