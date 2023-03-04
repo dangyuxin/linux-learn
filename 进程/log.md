@@ -73,7 +73,19 @@ init进程：1号，是所有进程的祖先进程
 注意:`fflush`
 
 
-##### 5.用户权限及组权限
+##### 5.用户权限及组权限（u+s,g+s）
+```c
+   getuid();
+   geteuid();
+   getgid();
+   geregid();
+   setuid();
+   setgid();
+   setreuid();//原子化操作
+   setregid();//交换
+   seteuid();
+   setegid();
+```
 
 ##### 6.观摩课：解释器文件
 
