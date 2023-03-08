@@ -90,12 +90,26 @@ init进程：1号，是所有进程的祖先进程
 ##### 6.观摩课：解释器文件
 
 ##### 7.system();
+理解  ：fork+exec+wait封装
 
 ##### 8.进程会计
+acct();
 
 ##### 9.进程时间
+times();
 
 ##### 10.守护进程
+回话session，标识sid
+终端
+   setsid();
+   getpgrd();
+   getpgid();
+   setgpid();
 
 ##### 11.系统日志
+
+syslogd服务
+openlog();
+syslog();
+closelog();
 
