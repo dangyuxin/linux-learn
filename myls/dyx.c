@@ -35,7 +35,9 @@ void print(const char *path,struct stat sor);
 int main(int argc, char **argv){
     int sig=1;
     bool *type=(bool*)malloc(sizeof(bool)*7);
-    type[0]=false;
+    for(int i=0;i<7;i++){
+        type[i]=false;
+    }
     type = lstype(argc,argv,type);
     for(int i=1;i<argc;i++){
         if(argv[i][0]!='-'){
@@ -88,7 +90,7 @@ void ls_main(const char *path,bool *make){
     struct dirent *ent;
     struct stat res;
     int filecount = 0;
-    char **files=(char**)malloc(sizeof(char**)*100000);
+    char **files=(char**)malloc(sizeof(char*)*100000);
     dir = opendir(path);
     if(!dir){
         free(files);
@@ -98,7 +100,7 @@ void ls_main(const char *path,bool *make){
         if(!make[_a]&&ent->d_name[0]=='.'){
             continue;
         }
-        files[filecount]=(char*)malloc(sizeof(char)*1024);
+        files[filecount]=(char*)malloc(sizeof(char)*512);
         strcpy(files[filecount++],ent->d_name);
     }
     if(make[_t]){
@@ -191,6 +193,9 @@ void ls_main(const char *path,bool *make){
             ls_main(absl,make);
         }
         free(absl);
+    }
+    for(int i=0;i<filecount;i++){
+        free(files[i]);
     }
     free(files);
     closedir(dir);
