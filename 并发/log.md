@@ -17,7 +17,7 @@
 
 ##### 2.signa();
 
-`void(*signal(int signum,void(*func)(int)))(int)`
+`void(*signal(int signum,void(*func)(int)))(int)`  
 信号会打断阻塞的系统调用
 
 ##### 3.信号的不可靠
