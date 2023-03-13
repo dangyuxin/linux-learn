@@ -9,7 +9,7 @@
 #define DELMITS " \t\n"
 
 static void prompt(){
-    printf("dyx-super shell$ ");
+    printf("dyx-super-shell$ ");
 }
 
 static void parse(const char *buf,glob_t *res){
