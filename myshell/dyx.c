@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
@@ -13,7 +14,7 @@
 #define NONE_REDIR 0
 
 int redir_status=NONE_REDIR;
-int PIPES=0;
+bool HT=false;
 
 void parse_args(char* line, char** args) {
     char* token = strtok(line, " \t\r\n\a");
@@ -32,6 +33,16 @@ void parse_args(char* line, char** args) {
     while (token != NULL) {
         token = strtok(NULL, " \t\r\n\a");
         args[i++] = token;
+    }
+}
+
+void parse(char *line){
+    HT=false;
+    for(int i=0;i<strlen(line);i++){
+        if(line[i]=='&'){
+            HT=true;
+            line[i]=' ';
+        }
     }
 }
 
@@ -165,7 +176,6 @@ void run_command_with_pipe1(char** args, int num_args) {
     int pipefd[num_args-1][2];
     pid_t pids[num_args-1];
 
-    // Create all pipes
     for (int i = 0; i < num_args-1; i++) {
         if (pipe(pipefd[i]) == -1) {
             perror("pipe");
@@ -173,26 +183,20 @@ void run_command_with_pipe1(char** args, int num_args) {
         }
     }
 
-    // Create all child processes
     for (int i = 0; i < num_args; i++) {
         pid_t pid = fork();
         if (pid == -1) {
             perror("fork");
             exit(EXIT_FAILURE);
         } else if (pid == 0) {
-            // Child process
             if (i == 0) {
-                // First command
                 dup2(pipefd[i][1], STDOUT_FILENO);
             } else if (i == num_args-1) {
-                // Last command
                 dup2(pipefd[i-2][0], STDIN_FILENO);
             } else {
-                // Intermediate command
                 dup2(pipefd[i-1][0], STDIN_FILENO);
                 dup2(pipefd[i][1], STDOUT_FILENO);
             }
-            // Close all pipes
             for (int j = 0; j < num_args-1; j++) {
                 if (j != i-1) {
                     close(pipefd[j][0]);
@@ -203,18 +207,14 @@ void run_command_with_pipe1(char** args, int num_args) {
             perror("execvp");
             exit(EXIT_FAILURE);
         } else {
-            // Parent process
             pids[i-1] = pid;
         }
     }
 
-    // Close all pipes in parent process
     for (int i = 0; i < num_args-1; i++) {
         close(pipefd[i][0]);
         close(pipefd[i][1]);
     }
-
-    // Wait for all child processes to finish
     for (int i = 0; i < num_args-1; i++) {
         int status;
         waitpid(pids[i], &status, 0);
@@ -237,6 +237,7 @@ int main() {
         if(strcmp(line,"\n")==0)
             continue;
         line[strlen(line)-1]='\0';
+        parse(line);
         char *sep=CheckRedir(line);
         parse_args(line, args);
         if (args[0] == NULL) {
@@ -273,30 +274,37 @@ int main() {
  
             continue;
         }
-        if(sep!=NULL)
-            {
+        if(HT){
                 int fd=-1;
-                switch(redir_status) {
-                    case INPUT_REDIR:
-                        fd=open(sep,O_RDONLY);
-                        dup2(fd,0);
-                        close(fd);
-                        break;
-                    case OUTPUT_REDIR:
-                        fd=open(sep,O_WRONLY|O_TRUNC|O_CREAT,0666);
-                        dup2(fd,1);
-                        close(fd);
-                        break;
-                    case APPEND_REDIR:
-                        fd=open(sep,O_WRONLY|O_APPEND|O_CREAT,0666);
-                        dup2(fd,1);
-                        close(fd);
-                        break;
-                    default:
-                        printf("bug?\n");
-                        break;
-                }
+                fd=open("/dev/null",O_WRONLY);
+                dup2(fd,0);
+                dup2(fd,1);
+                close(fd);
+        }
+        if(sep!=NULL)
+        {
+            int fd=-1;
+            switch(redir_status) {
+                case INPUT_REDIR:
+                    fd=open(sep,O_RDONLY);
+                    dup2(fd,0);
+                    close(fd);
+                    break;
+                case OUTPUT_REDIR:
+                    fd=open(sep,O_WRONLY|O_TRUNC|O_CREAT,0666);
+                    dup2(fd,1);
+                    close(fd);
+                    break;
+                case APPEND_REDIR:
+                    fd=open(sep,O_WRONLY|O_APPEND|O_CREAT,0666);
+                    dup2(fd,1);
+                    close(fd);
+                    break;
+                default:
+                    printf("bug?\n");
+                    break;
             }
+        }
         run_command(args);
         dup2(x,0);
         dup2(y,1);
