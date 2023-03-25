@@ -152,7 +152,7 @@ void run_command(char** args) {
     if (has_pipe(args, &pipe_position)) {
         char* args1[MAX_ARGS];
         char* args2[MAX_ARGS];
-        memcpy(args1, args, pipe_position * sizeof(char*));
+        memcpy(args1, args, (pipe_position) * sizeof(char*));
         args1[pipe_position] = NULL;
         memcpy(args2, &args[pipe_position + 1], (MAX_ARGS - pipe_position - 1) * sizeof(char*));
         run_command_with_pipe(args1, args2);
@@ -172,63 +172,14 @@ void run_command(char** args) {
     }
 }
 
-void run_command_with_pipe1(char** args, int num_args) {
-    int pipefd[num_args-1][2];
-    pid_t pids[num_args-1];
-
-    for (int i = 0; i < num_args-1; i++) {
-        if (pipe(pipefd[i]) == -1) {
-            perror("pipe");
-            exit(EXIT_FAILURE);
-        }
-    }
-
-    for (int i = 0; i < num_args; i++) {
-        pid_t pid = fork();
-        if (pid == -1) {
-            perror("fork");
-            exit(EXIT_FAILURE);
-        } else if (pid == 0) {
-            if (i == 0) {
-                dup2(pipefd[i][1], STDOUT_FILENO);
-            } else if (i == num_args-1) {
-                dup2(pipefd[i-2][0], STDIN_FILENO);
-            } else {
-                dup2(pipefd[i-1][0], STDIN_FILENO);
-                dup2(pipefd[i][1], STDOUT_FILENO);
-            }
-            for (int j = 0; j < num_args-1; j++) {
-                if (j != i-1) {
-                    close(pipefd[j][0]);
-                    close(pipefd[j][1]);
-                }
-            }
-            execvp(args[i], &args[i]);
-            perror("execvp");
-            exit(EXIT_FAILURE);
-        } else {
-            pids[i-1] = pid;
-        }
-    }
-
-    for (int i = 0; i < num_args-1; i++) {
-        close(pipefd[i][0]);
-        close(pipefd[i][1]);
-    }
-    for (int i = 0; i < num_args-1; i++) {
-        int status;
-        waitpid(pids[i], &status, 0);
-    }
-}
-
 int main() {
     char line[MAX_LINE];
     char* args[MAX_ARGS];
     char prior[100]={'\0'};
     args[0]="\0";
-    //signal(SIGINT,SIG_IGN); //屏蔽ctrl+c
+    signal(SIGINT,SIG_IGN); //屏蔽ctrl+c
+    int x=dup(0),y=dup(1);
     while (1) {
-        int x=dup(0),y=dup(1);
         printf("[dyx-super-shell]# ");
         if (fgets(line, MAX_LINE, stdin) == NULL) {
             perror("fgets");
@@ -252,13 +203,10 @@ int main() {
             {
                 if (prior)
                 {
- 
                     char buf[100];
                     getcwd(buf, 100);
                     printf("%s\n", prior);
- 
                     chdir(prior);
- 
                     strcpy(prior, buf);
                 }
                 else
@@ -271,7 +219,6 @@ int main() {
                 getcwd(prior, 100);
                 chdir(args[1]);
             }
- 
             continue;
         }
         if(HT){
@@ -309,6 +256,5 @@ int main() {
         dup2(x,0);
         dup2(y,1);
     }
-
     return 0;
 }
