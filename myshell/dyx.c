@@ -16,6 +16,7 @@
 
 int redir_status=NONE_REDIR;
 bool HT=false;
+bool CON=false;
 
 void parse_args(char* line, char** args) {
     char* token = strtok(line, " \t\r\n\a");
@@ -39,10 +40,14 @@ void parse_args(char* line, char** args) {
 
 void parse(char *line){
     HT=false;
+    CON=false;
     for(int i=0;i<strlen(line);i++){
         if(line[i]=='&'){
             HT=true;
             line[i]=' ';
+        }
+        if(line[i]!=' '){
+            CON=true;
         }
     }
 }
@@ -190,6 +195,9 @@ int main() {
             continue;
         line[strlen(line)-1]='\0';
         parse(line);
+        if(!CON){
+            continue;
+        }
         char *sep=CheckRedir(line);
         parse_args(line, args);
         if (args[0] == NULL) {
