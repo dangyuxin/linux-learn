@@ -1,10 +1,12 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include <signal.h>
 #include <unistd.h>
 #include <string.h>
+#include <readline/history.h>
+#include <readline/readline.h>
 #include <fcntl.h>
+#include <signal.h>
 #include <sys/wait.h>
 
 #define MAX_LINE 1024
@@ -16,7 +18,8 @@
 
 int redir_status=NONE_REDIR;
 bool HT=false;
-bool CON=false;
+bool PP=false;
+int COUNT=0;
 
 void parse_args(char* line, char** args) {
     char* token = strtok(line, " \t\r\n\a");
@@ -36,20 +39,130 @@ void parse_args(char* line, char** args) {
         token = strtok(NULL, " \t\r\n\a");
         args[i++] = token;
     }
+    COUNT=i-1;
 }
 
 void parse(char *line){
     HT=false;
-    CON=false;
+    PP=false;
     for(int i=0;i<strlen(line);i++){
         if(line[i]=='&'){
             HT=true;
             line[i]=' ';
         }
-        if(line[i]!=' '){
-            CON=true;
+        if(line[i]=='|'){
+            PP=true;
         }
     }
+}
+
+void DoPipe(char **argv, int count)
+{
+    pid_t pid;
+    int ret[10];
+    int number=0;
+    for(int i=0;i<count;i++)
+    {
+    if(!strcmp(argv[i],"|"))
+    {
+        ret[number++]=i;
+    }
+    }
+    int cmd_count=number+1;
+    char* cmd[cmd_count][10];
+    for(int i=0;i<cmd_count;i++)
+    {
+    if(i==0)
+    {
+        int n=0;
+        for(int j=0;j<ret[i];j++)
+        {
+        cmd[i][n++]=argv[j];
+        }
+        cmd[i][n]=NULL;
+    }
+    else if(i==number)
+    {
+        int n=0;
+        for(int j=ret[i-1]+1;j<count;j++)
+        {
+        cmd[i][n++]=argv[j];
+        }
+        cmd[i][n]=NULL;
+    }
+    else 
+    {
+        int n=0;
+        for(int j=ret[i-1]+1;j<ret[i];j++)
+        {
+        cmd[i][n++]=argv[j];
+        }
+        cmd[i][n]=NULL;
+    }
+    }
+    int fd[number][2];  
+    for(int i=0;i<number;i++)
+    {
+    pipe(fd[i]);
+    }
+    int i=0;
+    for(i=0;i<cmd_count;i++)
+    {
+    pid=fork();
+    if(pid==0)
+    break;
+    }
+    if(pid==0)
+    {
+    if(number)
+    {
+        if(i==0)
+        {
+        dup2(fd[0][1],1); 
+        close(fd[0][0]);
+        for(int j=1;j<number;j++)
+        {
+            close(fd[j][1]);
+            close(fd[j][0]);
+        }
+        }
+        else if(i==number)
+        {
+        dup2(fd[i-1][0],0);
+        close(fd[i-1][1]);
+        for(int j=0;j<number-1;j++)
+        {
+            close(fd[j][1]);
+            close(fd[j][0]);
+        }
+        }
+        else
+        {
+        dup2(fd[i-1][0],0);
+        close(fd[i-1][1]);
+        dup2(fd[i][1],1);
+        close(fd[i][0]);
+        for(int j=0;j<number;j++)
+        {
+                if(j!=i&&j!=(i-1))
+                {
+                close(fd[j][0]);
+                close(fd[j][1]);
+                }
+        }
+        }
+    }
+    execvp(cmd[i][0],cmd[i]);
+    perror("execvp");
+    exit(1);
+    }
+    for(i=0;i<number;i++)
+    {
+        close(fd[i][0]);
+        close(fd[i][1]);
+    }
+    for(int j=0;j<cmd_count;j++)
+    wait(NULL);
 }
 
 int has_pipe(char** args, int* pipe_position) {
@@ -155,14 +268,18 @@ void run_command_with_pipe(char** args1, char** args2) {
 
 void run_command(char** args) {
     int pipe_position;
-    if (has_pipe(args, &pipe_position)) {
-        char* args1[MAX_ARGS];
-        char* args2[MAX_ARGS];
-        memcpy(args1, args, (pipe_position) * sizeof(char*));
-        args1[pipe_position] = NULL;
-        memcpy(args2, &args[pipe_position + 1], (MAX_ARGS - pipe_position - 1) * sizeof(char*));
-        run_command_with_pipe(args1, args2);
-    } else {
+    // if (has_pipe(args, &pipe_position)) {
+    //     char* args1[MAX_ARGS];
+    //     char* args2[MAX_ARGS];
+    //     memcpy(args1, args, (pipe_position) * sizeof(char*));
+    //     args1[pipe_position] = NULL;
+    //     memcpy(args2, &args[pipe_position + 1], (MAX_ARGS - pipe_position - 1) * sizeof(char*));
+    //     run_command_with_pipe(args1, args2);
+    // } 
+    if(PP){
+        DoPipe(args,COUNT);
+    }
+    else {
         pid_t pid = fork();
         if (pid == -1) {
             perror("fork");
@@ -191,13 +308,12 @@ int main() {
             perror("fgets");
             exit(EXIT_FAILURE);
         }
-        if(strcmp(line,"\n")==0)
+        // line=readline(line);
+        if(strcmp(line,"\n")==0||!line)
             continue;
         line[strlen(line)-1]='\0';
+        // add_history(line);
         parse(line);
-        if(!CON){
-            continue;
-        }
         char *sep=CheckRedir(line);
         parse_args(line, args);
         if (args[0] == NULL) {
@@ -262,6 +378,8 @@ int main() {
             }
         }
         run_command(args);
+        // free(line);
+        // line=NULL;
         dup2(x,0);
         dup2(y,1);
     }
