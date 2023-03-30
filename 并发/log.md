@@ -98,11 +98,15 @@ setitimer();
 
 &emsp;posix线程是一套标准，而不是实现  
 &emsp;openmp线程  
-&emsp;线程标识：==pthread_t== :smile:
+&emsp;线程标识：**pthread_t**   &emsp; :s*mile:  
+&emsp;`pthread_equal();`  
+&emsp;`pthread_self();`
 
 
 
 ##### 2.线程的创建
+`pthread_create`  
+线程的调度取决于线程调度器的策略
 
 ##### 线程的终止
 
