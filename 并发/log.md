@@ -109,8 +109,17 @@ setitimer();
 线程的调度取决于线程调度器的策略
 
 ##### 线程的终止
+3种方式:
+- 线程从启动历程返回，返回值就是线程的退出码
+- 线程可以被同一进程中的其他线程取消
+- 线程调用`pthread_exit()`函数
+
+`pthread_join()`  -->  `wait()`
 
 ##### 栈的清理
+
+`pthread_cleanup_pop();`
+`pthread_cleanup_push();`
 
 ##### 线程的取消选项
 
