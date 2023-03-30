@@ -94,6 +94,13 @@ setitimer();
 
 
 ##### 1.线程的概念
+> *一个正在运行的函数*
+
+&emsp;posix线程是一套标准，而不是实现  
+&emsp;openmp线程  
+&emsp;线程标识：==pthread_t== :smile:
+
+
 
 ##### 2.线程的创建
 
