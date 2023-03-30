@@ -45,11 +45,35 @@ alarm();
 pause();
 abort();
 system();
+
+sleep();
+nanosleep();
+usleep();
+select();
+
 ```
 
 ##### 7.信号集
 
+```c
+信号集类型：sigset_t
+
+int sigemptyset(sigset_t *set);
+
+int sigfillset(sigset_t *set);
+
+int sigaddset(sigset_t *set, int signum);
+
+int sigdelset(sigset_t *set, int signum);
+
+int sigismember(const sigset_t *set, int signum);
+```
+
 ##### 8.信号屏蔽字/pending的处理
+
+`sigprocmask()`
+`sigpending()`
+
 
 ##### 9.扩展
 

@@ -1,11 +1,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <signal.h>
+#include <unistd.h>
 
-int main(){
+void int_handler(int s)
+{
+	write(1, "!", 1);
+}
 
-	signal(SIGINT,SIG_IGN);
-	for(int i=0;i<10;i++){
+int main()
+{
+
+	// signal(SIGINT,SIG_IGN);
+	signal(SIGINT, int_handler);
+	for (int i = 0; i < 10; i++)
+	{
 		printf("*");
 		fflush(NULL);
 		sleep(1);
