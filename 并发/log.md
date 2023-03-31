@@ -123,6 +123,18 @@ setitimer();
 
 ##### 线程的取消选项
 
+**线程取消**：`pthread_cancel();`   
+取消有两种状态：允许和不允许  
+允许取消又分为：异步cancel，推迟cancel（默认）--> 推迟至cancel点在响应  
+cancel点：POSIX的cancel点，都是可能引发阻塞的系统调用  
+`pthread_setcancelstate()`:设置线程是否可以取消  
+`pthread_setcanceltype()`:设置取消方式   
+`pthread_testcancel()`:本函数什么都不做，就是一个取消点   
+
+线程分离: 
+`pthread_detach()`:
+
+
 ##### 3.线程同步
 
 ##### 4.线程属性
