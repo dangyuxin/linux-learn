@@ -98,7 +98,7 @@ setitimer();
 
 &emsp;posix线程是一套标准，而不是实现  
 &emsp;openmp线程  
-&emsp;线程标识：**pthread_t**   &emsp; :s*mile:  
+&emsp;线程标识：**pthread_t**   &emsp; :smile:  
 &emsp;`pthread_equal();`  
 &emsp;`pthread_self();`
 
@@ -136,6 +136,15 @@ cancel点：POSIX的cancel点，都是可能引发阻塞的系统调用
 
 
 ##### 3.线程同步
+
+互斥量：
+
+- `pthread_mutex_t`
+- `pthread_mutex_init()`
+- `pthread_mutex_destory()`
+- `pthread_mutex_lock()`
+- `pthread_mutex_trylock()`
+- `pthread_mutex_unlock()` 
 
 ##### 4.线程属性
 
