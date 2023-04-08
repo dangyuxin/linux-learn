@@ -145,6 +145,13 @@ cancel点：POSIX的cancel点，都是可能引发阻塞的系统调用
 - `pthread_mutex_lock()`
 - `pthread_mutex_trylock()`
 - `pthread_mutex_unlock()` 
+- `pthread_once()`
+
+条件变量：
+
+- `pthread_con_t`
+- `pthread_con_init`
+- `pthread_con_destroy`
 
 ##### 4.线程属性
 
