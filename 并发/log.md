@@ -150,8 +150,10 @@ cancel点：POSIX的cancel点，都是可能引发阻塞的系统调用
 条件变量：
 
 - `pthread_con_t`
-- `pthread_con_init`
-- `pthread_con_destroy`
+- `pthread_con_init()`
+- `pthread_con_destroy()`
+- `pthread_con_broadcast()`
+- `pthread_con_signal()`
 
 ##### 4.线程属性
 
