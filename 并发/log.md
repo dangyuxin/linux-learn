@@ -155,13 +155,38 @@ cancel点：POSIX的cancel点，都是可能引发阻塞的系统调用
 - `pthread_con_broadcast()`
 - `pthread_con_signal()`
 
+信号量：   
+读写锁：读锁 --> 共享锁，写锁，互斥锁 
+
 ##### 4.线程属性
+`pthread_attr_init()`  
+`pthread_attr_destroy()`  
+`pthread_attr_setstacksize()`  
+`man`手册的`see also`  
+
 
 ##### 线程同步的属性
+    互斥量属性：
+- `pthread_mutexattr_init()`
+- `pthread_mutexattr_destroy()`
+- `pthread_mutexattr_getpshared()`
+- `pthread_mutexattr_setpshared()`  
+- `clone`
+- `pthread_mutexattr_gettype()`
+- `pthread_mutexattr_settype()`  
+  
+  条件变量属性和读写锁属性同上
+
 
 ##### 5.重入
+**多线程中的IO**
+
 
 ##### 线程与信号
+`pthread_sigmask()`
+`sigwait()`
+`pthread_kill`
+
 
 ##### 线程与fork
 
