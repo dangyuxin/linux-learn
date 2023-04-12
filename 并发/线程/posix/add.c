@@ -20,12 +20,12 @@ static void *add(void *p)
 		exit(1);
 	}
 
-	// pthread_mutex_lock(&mut);
+	pthread_mutex_lock(&mut);
 	fgets(buf, SIZE, fp);
 	fseek(fp, 0, SEEK_SET);
 	fprintf(fp, "%d\n", atoi(buf) + 1);
 	fclose(fp);
-	// pthread_mutex_unlock(&mut);
+	pthread_mutex_unlock(&mut);
 	pthread_exit(NULL);
 }
 
@@ -48,5 +48,5 @@ int main()
 	}
 
 	pthread_mutex_destroy(&mut);
-	exit(1);
+	exit(0);
 }
