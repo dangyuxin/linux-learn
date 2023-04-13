@@ -21,7 +21,7 @@ static void *producer(void *p)
             perror("fopen()");
             exit(1);
         }
-        while (atoi(fgets(buf, MAX, fp)) >= 500)
+        while (atoi(fgets(buf, MAX, fp)) >= 800)
         {
             fseek(fp, 0, SEEK_SET);
             pthread_cond_wait(&cond, &mutex);
