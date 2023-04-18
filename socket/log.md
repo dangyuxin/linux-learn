@@ -24,8 +24,14 @@ struct {
 ##### 3.类型长度的问题：
 int  
 char  
-解决：int32_t,uint32_t,int64_t,int8_t,...
+解决：int32_t,uint32_t,int64_t,int8_t,...  
+
+SOCKET是什么：
+
+
 
 ##### 报式套接字
+
+
 
 ##### 流式套接字
