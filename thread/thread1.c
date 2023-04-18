@@ -27,7 +27,7 @@ static void *producer(void *p)
             pthread_cond_wait(&cond, &mutex);
         }
         fseek(fp, 0, SEEK_SET);
-        fprintf(fp, "%d", atoi(buf) + 1);
+        fprintf(fp, "%d\n", atoi(buf) + 1);
         fflush(fp);
         fclose(fp);
         pthread_mutex_unlock(&mutex);
