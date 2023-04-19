@@ -1,45 +1,100 @@
 #include <stdio.h>
-#include <pthread.h>
 #include <stdlib.h>
-#include <semaphore.h>
+#include <string.h>
+#include <pthread.h>
 #include <unistd.h>
 
-#define N 5
-int queue[N];
-sem_t blank_number, product_number; // 两个信号量控制
-void *producer(void *arg)           // 生产
+typedef struct SPSCQueue
 {
-    int p = 0;
+    /* Define Your Data Here */
+    int front;
+    int rear;
+    int cap;
+    int *date;
+    pthread_mutex_t mutex;
+    pthread_cond_t cond;
+
+} SPSCQueue;
+
+SPSCQueue *SPSCQueueInit(int capacity)
+{
+    SPSCQueue *t = (SPSCQueue *)malloc(sizeof(SPSCQueue));
+    t->cap = capacity + 1;
+    t->date = (int *)malloc(sizeof(int) * capacity);
+    t->front = 0;
+    t->rear = 0;
+    pthread_mutex_init(&t->mutex, NULL);
+    pthread_cond_init(&t->cond, NULL);
+
+    return t;
+}
+void SPSCQueuePush(SPSCQueue *queue, int s)
+{
+    pthread_mutex_lock(&queue->mutex);
+    if ((queue->rear + 1) % queue->cap == queue->front)
+    {
+        pthread_cond_wait(&queue->cond, &queue->mutex);
+    }
+    queue->date[queue->rear] = s;
+    queue->rear = (queue->rear + 1) % queue->cap;
+    pthread_mutex_unlock(&queue->mutex);
+    pthread_cond_broadcast(&queue->cond);
+}
+int SPSCQueuePop(SPSCQueue *queue)
+{
+    pthread_mutex_lock(&queue->mutex);
+    if (queue->front == queue->rear)
+    {
+        pthread_cond_wait(&queue->cond, &queue->mutex);
+    }
+    int p = queue->date[queue->front];
+    queue->front = (queue->front + 1) % queue->cap;
+    pthread_mutex_unlock(&queue->mutex);
+    pthread_cond_broadcast(&queue->cond);
+    return p;
+}
+
+void SPSCQueueDestory(SPSCQueue *queue)
+{
+    free(queue->date);
+    pthread_cond_destroy(&queue->cond);
+    pthread_mutex_destroy(&queue->mutex);
+    free(queue);
+    queue = NULL;
+}
+
+void *consumer(void *p)
+{
+    SPSCQueue *t = (SPSCQueue *)p;
     while (1)
     {
-        sem_wait(&blank_number);      // 空格的位置-1
-        queue[p] = rand() % 1000 + 1; // 放入队列
-        printf("product %d \n", queue[p]);
-        sem_post(&product_number); // 生产的数量+1
-        p = (p + 1) % N;           // 1-N 1-N 循环放入 模拟队列
-        sleep(rand() % 5);
+        SPSCQueuePop(t);
+        printf("[c]当前队列元素数量：%d\n", (t->rear - t->front + t->cap) % t->cap);
+        fflush(NULL);
+        sleep(rand() % 3);
     }
 }
-void *consumer(void *arg) // 消费者
+
+void *producer(void *p)
 {
-    int c = 0;
+    SPSCQueue *t = (SPSCQueue *)p;
     while (1)
     {
-        sem_wait(&product_number); // 产品数量-1
-        printf("Consume %d\n", queue[c]);
-        queue[c] = 0;
-        sem_post(&blank_number); // 空格数量+1
-        c = (c + 1) % N;
-        sleep(rand() % 5);
+        SPSCQueuePush(t, rand() % 10);
+        printf("[p]当前队列元素数量：%d\n", (t->rear - t->front + t->cap) % t->cap);
+        fflush(NULL);
+        sleep(rand() % 3);
     }
 }
+
 int main()
 {
-    sem_init(&blank_number, 0, N);   // 空格的数量(剩余空间的位置)
-    sem_init(&product_number, 0, 0); // 已经生产的数量
-    pthread_t pid, cid;
-    pthread_create(&pid, NULL, producer, NULL);
-    pthread_create(&cid, NULL, consumer, NULL);
-    pthread_join(pid, NULL);
-    pthread_join(cid, NULL);
+    SPSCQueue *q = SPSCQueueInit(5);
+    pthread_t tid1, tid2, tid3;
+    pthread_create(&tid1, NULL, consumer, (void *)q);
+    pthread_create(&tid2, NULL, producer, (void *)q);
+    pthread_join(tid1, NULL);
+    pthread_join(tid2, NULL);
+    SPSCQueueDestory(q);
+    return 0;
 }
