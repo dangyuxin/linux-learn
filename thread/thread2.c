@@ -37,6 +37,8 @@ void SPSCQueuePush(SPSCQueue *queue, int s)
     }
     queue->date[queue->rear] = s;
     queue->rear = (queue->rear + 1) % queue->cap;
+    printf("[p]当前队列元素数量：%d\n", (queue->rear - queue->front + queue->cap) % queue->cap);
+    fflush(NULL);
     pthread_mutex_unlock(&queue->mutex);
     pthread_cond_broadcast(&queue->cond);
 }
@@ -49,6 +51,8 @@ int SPSCQueuePop(SPSCQueue *queue)
     }
     int p = queue->date[queue->front];
     queue->front = (queue->front + 1) % queue->cap;
+    printf("[c]当前队列元素数量：%d\n", (queue->rear - queue->front + queue->cap) % queue->cap);
+    fflush(NULL);
     pthread_mutex_unlock(&queue->mutex);
     pthread_cond_broadcast(&queue->cond);
     return p;
@@ -69,8 +73,6 @@ void *consumer(void *p)
     while (1)
     {
         SPSCQueuePop(t);
-        printf("[c]当前队列元素数量：%d\n", (t->rear - t->front + t->cap) % t->cap);
-        fflush(NULL);
         sleep(rand() % 3);
     }
 }
@@ -81,18 +83,17 @@ void *producer(void *p)
     while (1)
     {
         SPSCQueuePush(t, rand() % 10);
-        printf("[p]当前队列元素数量：%d\n", (t->rear - t->front + t->cap) % t->cap);
-        fflush(NULL);
         sleep(rand() % 3);
     }
 }
 
 int main()
 {
-    SPSCQueue *q = SPSCQueueInit(5);
+    SPSCQueue *q = SPSCQueueInit(100);
     pthread_t tid1, tid2, tid3;
-    pthread_create(&tid1, NULL, consumer, (void *)q);
     pthread_create(&tid2, NULL, producer, (void *)q);
+    sleep(10);
+    pthread_create(&tid1, NULL, consumer, (void *)q);
     pthread_join(tid1, NULL);
     pthread_join(tid2, NULL);
     SPSCQueueDestory(q);
