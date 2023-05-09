@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <sys/select.h>
 #include <fcntl.h>
 #include <errno.h>
 #include <unistd.h>
@@ -86,6 +87,8 @@ static void relay(int fd1, int fd2)
 {
 	int fd1_save, fd2_save;
 	struct fsm_t fsm12, fsm21;
+	fd_set rset, wset;
+
 	fcntl(fd1, F_GETFL);
 	fcntl(fd1, F_SETFL, fd1_save | O_NONBLOCK);
 
