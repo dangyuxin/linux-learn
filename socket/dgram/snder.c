@@ -13,7 +13,7 @@
 int main(int argc, char **argv)
 {
     int sd = socket(AF_INET, SOCK_DGRAM, 0);
-    struct sockaddr_in raddr;
+    struct sockaddr_in raddr, this;
     struct msg_st sbuf;
     socklen_t len;
 
@@ -22,8 +22,10 @@ int main(int argc, char **argv)
         perror("socket()");
         exit(1);
     }
+    this.sin_family = AF_INET;
+    this.sin_port = htons(8888);
+    bind(sd, (void *)&this, sizeof(this));
 
-    // bind()
     sbuf.math = htonl(100);
     sbuf.chinese = htonl(100);
     strcpy(sbuf.name, "DangYuXin");

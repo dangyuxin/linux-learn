@@ -39,7 +39,7 @@ int main()
     {
         recvfrom(sd, &rbuf, sizeof(rbuf), 0, (void *)&raddr, &len);
         inet_ntop(AF_INET, &raddr.sin_addr, ipstr, 40);
-        printf("--- Message from %s:%d---\n", ipstr, ntohl(raddr.sin_port));
+        printf("--- Message from %s:%d---\n", ipstr, ntohs(raddr.sin_port));
         printf("Name: %s\n", rbuf.name);
         printf("Math: %d\n", htonl(rbuf.math));
         printf("Chinese: %d\n", htonl(rbuf.chinese));
