@@ -18,7 +18,6 @@ int main(int argc, char **argv)
     int fd = socket(AF_INET, SOCK_DGRAM, 0);
 
     struct message a;
-    strcpy(a.s, argv[1]);
 
     struct sockaddr_in raddr;
 
@@ -26,8 +25,14 @@ int main(int argc, char **argv)
     raddr.sin_port = htons(7777);
     inet_pton(AF_INET, "127.0.0.1", &raddr.sin_addr.s_addr);
 
-    sendto(fd, &a, sizeof(a), 0, (void *)&raddr, sizeof(raddr));
-    puts("OK");
+    while (1)
+    {
+        fgets(a.s, 100, stdin);
+        a.s[strlen(a.s) - 1] = '\0';
+        sendto(fd, &a, sizeof(a), 0, (void *)&raddr, sizeof(raddr));
+        puts("OK");
+    }
+
     close(fd);
 
     exit(0);
