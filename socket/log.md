@@ -6,9 +6,9 @@
 - 大端：低地址处放高字节
 - 小端：低地址处放低字节
 
-主机字节序：host
-网络字节序：network
-解决：_to__: htons,htonl,ntohs,ntohl
+主机字节序：host  
+网络字节序：network  
+解决：_to__: htons,htonl,ntohs,ntohl  
 
 ##### 2.对齐
 
