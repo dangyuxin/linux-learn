@@ -28,3 +28,6 @@ writen();
 	munmap();
 
 ##### 5.文件锁
+	fcntl();
+	lockf();
+	flock();
