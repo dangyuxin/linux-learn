@@ -11,6 +11,7 @@ typedef void mypipe_st;
 mypipe_st *mypipe_init(void);
 
 int mypipe_register(mypipe_st*,int opmap);
+
 int mypipe_unregister(mypipe_st*,int opmap);
 
 int mypipe_read(mypipe_st*,void *buf,size_t size);
